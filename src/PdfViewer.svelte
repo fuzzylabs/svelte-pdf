@@ -37,10 +37,10 @@
   const minScale = 1.0;
   const maxScale = 2.3;
 
-  const renderPage = num => {
+  const renderPage = (num) => {
     pageRendering = true;
     // Using promise to fetch the page
-    pdfDoc.getPage(num).then(function(page) {
+    pdfDoc.getPage(num).then(function (page) {
       let viewport = page.getViewport({ scale: scale, rotation: rotation });
       const canvasContext = canvas.getContext("2d");
       canvas.height = viewport.height;
@@ -49,12 +49,12 @@
       // Render PDF page into canvas context
       let renderContext = {
         canvasContext,
-        viewport
+        viewport,
       };
       let renderTask = page.render(renderContext);
 
       // Wait for rendering to finish
-      renderTask.promise.then(function() {
+      renderTask.promise.then(function () {
         pageRendering = false;
         if (pageNumPending !== null) {
           // New page rendering is pending
@@ -77,7 +77,7 @@
     showButtons === true ? (page_num.textContent = num) : null;
   };
 
-  const queueRenderPage = num => {
+  const queueRenderPage = (num) => {
     if (pageRendering) {
       pageNumPending = num;
     } else {
@@ -125,7 +125,7 @@
     }
   };
 
-  const printPdf = url => {
+  const printPdf = (url) => {
     onPrint(url);
   };
 
@@ -148,9 +148,11 @@
    */
 
   const initialLoad = async () => {
+    isInitialised = false;
+    pageNum = 1;
     let loadingTask = pdfjs.getDocument({ url, password });
     loadingTask.promise
-      .then(async function(pdfDoc_) {
+      .then(async function (pdfDoc_) {
         pdfDoc = pdfDoc_;
         passwordError = false;
         await tick();
@@ -160,7 +162,7 @@
         if (showButtons === true) {
           for (let number = 1; number <= totalPage; number++) {
             // Extract the text
-            getPageText(number, pdfDoc).then(function(textPage) {
+            getPageText(number, pdfDoc).then(function (textPage) {
               // Show the text of the page in the console
               pdfContent = pdfContent.concat(textPage);
               readingTime = calcRT(pdfContent);
@@ -169,7 +171,7 @@
         }
         isInitialised = true;
       })
-      .catch(function(error) {
+      .catch(function (error) {
         passwordError = true;
         passwordMessage = error.message;
         if (passwordMessage === "Failed to fetch") {
@@ -179,7 +181,7 @@
         }
       });
   };
-  initialLoad();
+  $: if (url) initialLoad();
   $: if (isInitialised) queueRenderPage(pageNum);
 
   //turn page after certain time interval
@@ -201,7 +203,7 @@
     }
   };
   //Download pdf function
-  const downloadPdf = fileURL => {
+  const downloadPdf = (fileURL) => {
     let fileName = fileURL.substring(fileURL.lastIndexOf("/") + 1);
     FileSaver.saveAs(fileURL, fileName);
   };
@@ -326,7 +328,7 @@
     cursor: default;
   }
   .rot-icon {
-    transform : scaleX(-1)
+    transform: scaleX(-1);
   }
   #topBtn {
     position: fixed;
@@ -681,11 +683,16 @@
       </div>
     {/if}
   </div>
-  <button id="topBtn">
-    <a href="#top">
-      <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-        <path d="M7 10v8h6v-8h5l-8-8-8 8h5z" />
-      </svg>
-    </a>
-  </button>
+  {#if showButtons === true}
+    <button id="topBtn">
+      <a href="#top">
+        <svg
+          class="icon"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 20 20">
+          <path d="M7 10v8h6v-8h5l-8-8-8 8h5z" />
+        </svg>
+      </a>
+    </button>
+  {/if}
 </div>
