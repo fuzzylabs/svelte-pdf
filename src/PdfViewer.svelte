@@ -8,6 +8,7 @@
 
   export let url;
   export let scale = 1.8;
+  export let fillWidth;
   export let pageNum = 1; //must be number
   export let flipTime = 120; //by default 2 minute, value in seconds
   export let showButtons = true; //boolean
@@ -42,6 +43,13 @@
     // Using promise to fetch the page
     pdfDoc.getPage(num).then(function (page) {
       let viewport = page.getViewport({ scale: scale, rotation: rotation });
+
+      if (fillWidth === true) {
+        let targetWidth = document.getElementById("pdfviewer-parent").offsetWidth
+        scale = scale * (targetWidth / viewport.width);
+        viewport = page.getViewport({ scale: scale, rotation: rotation });
+      }
+
       const canvasContext = canvas.getContext("2d");
       canvas.height = viewport.height;
       canvas.width = viewport.width;
@@ -183,6 +191,7 @@
   };
   $: if (url) initialLoad();
   $: if (isInitialised) queueRenderPage(pageNum);
+  window.addEventListener('resize', () => queueRenderPage(pageNum));
 
   //turn page after certain time interval
   const onPageTurn = () => {
@@ -470,7 +479,7 @@
   }
 </style>
 
-<div class="parent">
+<div class="parent" id="pdfviewer-parent">
   <div class={showBorder === true ? 'control' : 'null'}>
     {#if passwordError === true}
       <div class="password-viewer">
@@ -478,7 +487,7 @@
         <p class="password-message">{passwordMessage}</p>
         <div class="password-container">
           <input type="password" class="password-input" bind:value={password} />
-          <button on:click={onPasswordSubmit} class="password-button">
+          <button on:click|preventDefault={onPasswordSubmit} class="password-button">
             Submit
           </button>
         </div>
@@ -490,7 +499,7 @@
             <span
               slot="activator"
               class="button-control {pageNum <= 1 ? 'disabled' : null}"
-              on:click={() => onPrevPage()}>
+              on:click|preventDefault={() => onPrevPage()}>
               <svg
                 class="icon"
                 xmlns="http://www.w3.org/2000/svg"
@@ -506,7 +515,7 @@
             <span
               slot="activator"
               class="button-control {pageNum >= totalPage ? 'disabled' : null}"
-              on:click={() => onNextPage()}>
+              on:click|preventDefault={() => onNextPage()}>
               <svg
                 class="icon"
                 xmlns="http://www.w3.org/2000/svg"
@@ -522,7 +531,7 @@
             <span
               slot="activator"
               class="button-control {scale >= maxScale ? 'disabled' : null}"
-              on:click={() => onZoomIn()}>
+              on:click|preventDefault={() => onZoomIn()}>
               <svg
                 class="icon"
                 xmlns="http://www.w3.org/2000/svg"
@@ -540,7 +549,7 @@
             <span
               slot="activator"
               class="button-control {scale <= minScale ? 'disabled' : null}"
-              on:click={() => onZoomOut()}>
+              on:click|preventDefault={() => onZoomOut()}>
               <svg
                 class="icon"
                 xmlns="http://www.w3.org/2000/svg"
@@ -558,7 +567,7 @@
             <span
               slot="activator"
               class="button-control"
-              on:click={() => printPdf(url)}>
+              on:click|preventDefault={() => printPdf(url)}>
               <svg
                 class="icon"
                 xmlns="http://www.w3.org/2000/svg"
@@ -574,7 +583,7 @@
             <span
               slot="activator"
               class="button-control"
-              on:click={() => antiClockwiseRotate()}>
+              on:click|preventDefault={() => antiClockwiseRotate()}>
               <svg
                 class="icon rot-icon"
                 xmlns="http://www.w3.org/2000/svg"
@@ -590,7 +599,7 @@
             <span
               slot="activator"
               class="button-control"
-              on:click={() => clockwiseRotate()}>
+              on:click|preventDefault={() => clockwiseRotate()}>
               <svg
                 class="icon"
                 xmlns="http://www.w3.org/2000/svg"
@@ -606,7 +615,7 @@
             <span
               slot="activator"
               class="button-control"
-              on:click={() => downloadPdf(url)}>
+              on:click|preventDefault={() => downloadPdf(url)}>
               <svg
                 class="icon"
                 xmlns="http://www.w3.org/2000/svg"
@@ -620,7 +629,7 @@
             <span
               slot="activator"
               class="page-info button-control"
-              on:click={() => onPageTurn()}>
+              on:click|preventDefault={() => onPageTurn()}>
               <svg
                 class="icon"
                 xmlns="http://www.w3.org/2000/svg"
