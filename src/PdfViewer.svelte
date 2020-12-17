@@ -158,7 +158,6 @@
 
   const initialLoad = async () => {
     isInitialised = false;
-    pageNum = 1;
     let loadingTask = pdfjs.getDocument({ url, password });
     loadingTask.promise
       .then(async function (pdfDoc_) {
