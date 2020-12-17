@@ -14,6 +14,7 @@
   export let showButtons = true; //boolean
   export let showBorder = true; //boolean
   export let totalPage = 0;
+  export let isInitialised = false;
 
   pdfjs.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
@@ -34,7 +35,7 @@
   let password = "";
   let passwordError = false;
   let passwordMessage = "";
-  let isInitialised = false;
+  
   const minScale = 1.0;
   const maxScale = 2.3;
 
